@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tc_app/themes/theme.dart';
-import 'package:tc_app/utils/typography.dart';
-import 'package:tc_app/utils/theme_extensions.dart';
+import 'package:tcc_app/themes/theme.dart';
+import 'package:tcc_app/utils/typography.dart';
+import 'package:tcc_app/utils/theme_extensions.dart';
 
 void main() {
   runApp(const MyApp());
