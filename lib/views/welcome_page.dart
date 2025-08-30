@@ -6,33 +6,62 @@ class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    body: Center(
-      child: SingleChildScrollView(
-        child: Column(
-          spacing: 64,
-          children: [
-            Image.asset('assets/images/logo.png', width: 200),
-            SizedBox(
-              width: 300,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 16,
-                children: [
-                  _OutlinedButton(text: WelcomeLocale.login, onPressed: () {}),
-                  _FilledButton(
-                    text: WelcomeLocale.createAccount,
-                    onPressed: () {},
-                  ),
-                  _TextButton(text: WelcomeLocale.guest, onPressed: () {}),
-                ],
+  Widget build(BuildContext context) {
+    const double logoSize = 200.0;
+    const double buttonSize = 240.0;
+
+    return Scaffold(
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            spacing: 64,
+            children: [
+              Image.asset('assets/images/logo.png', width: logoSize),
+              SizedBox(
+                width: buttonSize,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: 16,
+                  children: [
+                    _OutlinedButton(
+                      text: WelcomeLocale.login,
+                      onPressed: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/home',
+                          (route) => false,
+                        );
+                      },
+                    ),
+                    _FilledButton(
+                      text: WelcomeLocale.createAccount,
+                      onPressed: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/home',
+                          (route) => false,
+                        );
+                      },
+                    ),
+                    _TextButton(
+                      text: WelcomeLocale.guest,
+                      onPressed: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/home',
+                          (route) => false,
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _OutlinedButton extends StatelessWidget {
