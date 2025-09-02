@@ -32,6 +32,7 @@ class _DropdownWidgetState extends State<DropdownWidget> {
       borderRadius: BorderRadius.circular(8),
     ),
     child: DropdownButton<String>(
+      iconSize: 0,
       isDense: true,
       padding: const EdgeInsets.all(8),
       alignment: Alignment.centerLeft,

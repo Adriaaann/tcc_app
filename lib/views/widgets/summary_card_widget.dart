@@ -26,18 +26,18 @@ class SummaryCardWidget extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Column(
           spacing: 16,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _SummaryHeader(
-              text: 'Summary',
+              text: 'Resumo',
               defaultValue: '30_days',
               durationOptions: durationOptions,
             ),
             const _DisplayValue(
-              text: 'Gastos',
+              text: 'Total de Gastos',
               value: r'R$ 1.000,25',
               blank: true,
               negative: false,
@@ -63,18 +63,23 @@ class _SummaryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-    spacing: 16,
-    mainAxisAlignment: MainAxisAlignment.center,
-    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-      Text(
-        text,
-        style: context.textTheme.headlineLarge?.copyWith(
-          fontWeight: FontWeight.w600,
-          color: context.colorScheme.primary,
-        ),
+      Row(
+        spacing: 8,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            text,
+            style: context.textTheme.headlineLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: context.colorScheme.primary,
+            ),
+          ),
+          DropdownWidget(defaultValue: defaultValue, options: durationOptions),
+        ],
       ),
-      DropdownWidget(defaultValue: defaultValue, options: durationOptions),
+      IconButton.filledTonal(onPressed: () {}, icon: const Icon(Icons.person)),
     ],
   );
 }
@@ -102,31 +107,28 @@ class _DisplayValue extends StatelessWidget {
 
     return FittedBox(
       fit: BoxFit.scaleDown,
-      child: Padding(
+      child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            border: Border(left: BorderSide(color: statusColor, width: 4)),
-          ),
-          child: Column(
-            spacing: 4,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                text,
-                style: context.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+        decoration: BoxDecoration(
+          border: Border(left: BorderSide(color: statusColor, width: 4)),
+        ),
+        child: Column(
+          spacing: 4,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              text,
+              style: context.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w500,
               ),
-              Text(
-                value,
-                style: context.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+            ),
+            Text(
+              value,
+              style: context.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w500,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -17,18 +17,18 @@ class FinancialWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsetsGeometry.only(top: 16),
+    padding: const EdgeInsets.only(top: 16),
     child: Column(
       children: [
         CustomTabBar(tabList: tabList, tabController: tabController),
-        AnimatedSize(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          child: IndexedStack(
-            index: tabController.index,
-            children: cardItems
-                .map((items) => FinancialCard(items: items))
-                .toList(),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: AnimatedBuilder(
+            animation: tabController,
+            builder: (context, _) {
+              final index = tabController.index;
+              return FinancialCard(items: cardItems[index]);
+            },
           ),
         ),
       ],

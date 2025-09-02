@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:tcc_app/models/financial_item_model.dart';
-import 'package:tcc_app/views/widgets/financial_widget.dart';
-import 'package:tcc_app/views/widgets/summary_card_widget.dart';
+import 'package:tcc_app/views/data/notifiers.dart';
+import 'package:tcc_app/views/pages/graphs_page.dart';
+import 'package:tcc_app/views/pages/home_page.dart';
+import 'package:tcc_app/views/widgets/navbar_widget.dart';
 
 final durationOptions = [
-  {'value': '7_days', 'label': '7 Days'},
-  {'value': '15_days', 'label': '15 Days'},
-  {'value': '30_days', 'label': '30 Days'},
-  {'value': '3_months', 'label': '3 Months'},
-  {'value': '6_months', 'label': '6 Months'},
-  {'value': '12_months', 'label': '12 Months'},
+  {'value': '7_days', 'label': '7 Dias'},
+  {'value': '15_days', 'label': '15 Dias'},
+  {'value': '30_days', 'label': '30 Dias'},
+  {'value': '3_months', 'label': '3 Meses'},
+  {'value': '6_months', 'label': '6 Meses'},
+  {'value': '12_months', 'label': '12 Meses'},
 ];
 
 final sectionData = [
@@ -22,7 +24,7 @@ final sectionData = [
   {'color': Colors.teal, 'label': 'Cat 7', 'value': 10.0},
 ];
 
-final tabList = ['Subscriptions', 'Expenses'];
+final tabList = ['Despesas', 'Assinaturas'];
 
 final chipList = [
   'Restaurant',
@@ -37,13 +39,13 @@ final chipList = [
 ];
 
 final List<FinancialItem> example15Items = List.generate(
-  15,
+  10,
   (index) => FinancialItem(
     icon: Icons.shopping_cart,
     hour: DateTime(2025, 9, 1, 8 + (index % 12), (index * 5) % 60),
-    title: 'Expense $index',
+    title: 'Gasto $index',
     value: 'R\$ ${100 + index * 10},00',
-    tags: ['tags $index', 'tagsdawdaw $index', 'tags $index'],
+    tags: ['tags $index', 'teste $index', 'tags $index'],
   ),
 );
 
@@ -51,21 +53,21 @@ final List<FinancialItem> example3Items = [
   FinancialItem(
     icon: Icons.restaurant,
     hour: DateTime(2025, 9, 1, 12, 30),
-    title: 'Lunch',
+    title: 'Almoço',
     value: 'R\$ 45,00',
     tags: ['Duas Tags', 'Café'],
   ),
   FinancialItem(
     icon: Icons.local_cafe,
     hour: DateTime(2025, 9, 1, 15, 0),
-    title: 'Coffee',
+    title: 'Café',
     value: 'R\$ 12,50',
     tags: [],
   ),
   FinancialItem(
     icon: Icons.directions_bus,
     hour: DateTime(2025, 9, 1, 18, 15),
-    title: 'Bus Ticket',
+    title: 'Passagem',
     value: 'R\$ 7,25',
     tags: ['ABlubblbauba'],
   ),
@@ -87,7 +89,7 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     tabController = TabController(length: 2, vsync: this);
-    tabController.addListener(() => setState(() {})); // troca aba
+    tabController.addListener(() => setState(() {}));
   }
 
   @override
@@ -97,23 +99,19 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    body: SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            SummaryCardWidget(
-              durationOptions: durationOptions,
-              sectionData: sectionData,
-            ),
-            FinancialWidget(
-              tabList: tabList,
-              tabController: tabController,
-              cardItems: combinedItems,
-            ),
-          ],
-        ),
+  Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      Home(tabController: tabController),
+      const GraphsPage(),
+    ];
+
+    return Scaffold(
+      body: ValueListenableBuilder(
+        valueListenable: selectedPageNotifier,
+        builder: (context, selectedPage, child) =>
+            pages.elementAt(selectedPage),
       ),
-    ),
-  );
+      bottomNavigationBar: const NavbarWidget(),
+    );
+  }
 }

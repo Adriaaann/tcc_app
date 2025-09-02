@@ -1,5 +1,5 @@
 mixin WelcomeLocale {
-  static const String createAccount = 'Get Started';
-  static const String login = 'Login';
-  static const String guest = 'Continue as guest';
+  static const String createAccount = 'Criar Conta';
+  static const String login = 'Entrar';
+  static const String guest = 'Entrar como convidado';
 }
