@@ -1,6 +1,7 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
+import 'package:tcc_app/views/data/categories_list.dart';
+import 'package:tcc_app/views/widgets/financial_form/category_field_widget.dart';
 import 'package:tcc_app/views/widgets/financial_form/date_time_field_widget.dart';
 import 'package:tcc_app/views/widgets/financial_form/title_field_widget.dart';
 import 'package:tcc_app/views/widgets/financial_form/value_field_widget.dart';
@@ -17,9 +18,7 @@ class FinancialFormData {
   DateTime? date;
   String? value;
   String? title;
-
-  @override
-  String toString() => 'date: $date, value: $value, title: $title';
+  String? category;
 }
 
 class FinancialFormPage extends StatefulWidget {
@@ -57,8 +56,6 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
     formData
       ..value = valueController.text
       ..title = titleController.text;
-
-    log('Form salvo: $formData');
   }
 
   @override
@@ -73,6 +70,15 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
       FormFieldItem(
         icon: Icons.title,
         widget: TitleFieldWidget(controller: titleController),
+      ),
+      FormFieldItem(
+        icon: Icons.bookmark_outline_rounded,
+        widget: CategoryFieldWidget(
+          categories: categoriesList,
+          onCategorySelected: (category) {
+            formData.category = category.key;
+          },
+        ),
       ),
     ];
 
@@ -138,6 +144,9 @@ class _CardContainer extends StatelessWidget {
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(32),
           topRight: Radius.circular(32),
+          //! Remover após adicionar o restante das funcionalidades
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
         ),
       ),
       child: Padding(
