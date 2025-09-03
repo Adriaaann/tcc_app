@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
 
-class DateTimeField extends StatefulWidget {
+class DateTimeFieldWidget extends StatefulWidget {
   final Function(DateTime) onDateTimeSelected;
 
-  const DateTimeField({super.key, required this.onDateTimeSelected});
+  const DateTimeFieldWidget({super.key, required this.onDateTimeSelected});
 
   @override
-  State<DateTimeField> createState() => _DateTimeFieldState();
+  State<DateTimeFieldWidget> createState() => _DateTimeFieldWidgetState();
 }
 
-class _DateTimeFieldState extends State<DateTimeField> {
+class _DateTimeFieldWidgetState extends State<DateTimeFieldWidget> {
   List<bool> isSelected = [true, false];
   bool showTimeWidget = false;
   DateTime? selectedDateTime;
@@ -118,10 +118,6 @@ class _DateTimeFieldState extends State<DateTimeField> {
     spacing: 16,
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
-      Icon(
-        Icons.calendar_month_rounded,
-        color: Theme.of(context).colorScheme.secondary,
-      ),
       if (isSelected[0])
         ToggleButtons(
           isSelected: isSelected,

@@ -1,72 +1,105 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
 import 'package:tcc_app/views/widgets/financial_form/date_time_field_widget.dart';
+import 'package:tcc_app/views/widgets/financial_form/title_field_widget.dart';
+import 'package:tcc_app/views/widgets/financial_form/value_field_widget.dart';
 import 'package:tcc_app/views/widgets/pop_alert_widget.dart';
 
-class FinancialFormPage extends StatelessWidget {
+class FormFieldItem {
+  final IconData icon;
+  final Widget widget;
+
+  const FormFieldItem({required this.icon, required this.widget});
+}
+
+class FinancialFormData {
+  DateTime? date;
+  String? value;
+  String? title;
+
+  @override
+  String toString() => 'date: $date, value: $value, title: $title';
+}
+
+class FinancialFormPage extends StatefulWidget {
   final String title;
 
   const FinancialFormPage({super.key, required this.title});
 
   @override
+  State<FinancialFormPage> createState() => _FinancialFormPageState();
+}
+
+class _FinancialFormPageState extends State<FinancialFormPage> {
+  final valueController = TextEditingController();
+  final titleController = TextEditingController();
+  final FinancialFormData formData = FinancialFormData();
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    valueController.dispose();
+    super.dispose();
+  }
+
+  void saveForm() {
+    if (valueController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text('Insira um Valor para salvar.'),
+        ),
+      );
+      return;
+    }
+
+    formData
+      ..value = valueController.text
+      ..title = titleController.text;
+
+    log('Form salvo: $formData');
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final formatter = CurrencyTextInputFormatter.currency(
-      name: 'BRL',
-      symbol: 'R\$',
-      decimalDigits: 2,
-      maxValue: 1000000,
-    );
+    final List<FormFieldItem> fieldItems = [
+      FormFieldItem(
+        icon: Icons.calendar_month_rounded,
+        widget: DateTimeFieldWidget(
+          onDateTimeSelected: (date) => formData.date = date,
+        ),
+      ),
+      FormFieldItem(
+        icon: Icons.title,
+        widget: TitleFieldWidget(controller: titleController),
+      ),
+    ];
 
     return PopAlertWidget(
       widget: Scaffold(
         backgroundColor: context.colorScheme.secondaryContainer,
         appBar: AppBar(
           backgroundColor: context.colorScheme.secondaryContainer,
-          title: Text(title, style: context.textTheme.titleLarge),
+          title: Text(widget.title, style: context.textTheme.titleLarge),
         ),
         body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Column(
-              spacing: 32,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _ValueField(formatter: formatter),
-                SizedBox(
-                  width: double.infinity,
-                  child: Card(
-                    margin: EdgeInsets.zero,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(32),
-                        topRight: Radius.circular(32),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        spacing: 8,
-                        children: [
-                          DateTimeField(
-                            onDateTimeSelected: (date) {
-                              log('$date');
-                            },
-                          ),
-                          IconButton.filled(
-                            onPressed: () {},
-                            icon: const Icon(Icons.check),
-                          ),
-                        ],
-                      ),
-                    ),
+          padding: const EdgeInsets.only(top: 8),
+          child: Column(
+            spacing: 32,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ValueField(controller: valueController),
+              _CardContainer(
+                children: [
+                  ...fieldItems.map(
+                    (field) =>
+                        _FormField(icon: field.icon, child: field.widget),
                   ),
-                ),
-              ],
-            ),
+                  _SaveButton(onPressed: saveForm),
+                ],
+              ),
+            ],
           ),
         ),
       ),
@@ -74,33 +107,53 @@ class FinancialFormPage extends StatelessWidget {
   }
 }
 
-class _ValueField extends StatelessWidget {
-  const _ValueField({required this.formatter});
+class _FormField extends StatelessWidget {
+  final IconData icon;
+  final Widget child;
 
-  final CurrencyTextInputFormatter formatter;
+  const _FormField({required this.icon, required this.child});
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 32),
-    child: TextField(
-      autofocus: true,
-      keyboardType: TextInputType.number,
-      inputFormatters: <TextInputFormatter>[formatter],
-      style: context.textTheme.bodyMedium?.copyWith(fontSize: 32),
-      decoration: InputDecoration(
-        labelText: 'Valor',
-        labelStyle: context.textTheme.titleLarge?.copyWith(
-          color: context.colorScheme.onSecondaryContainer,
-          fontWeight: FontWeight.w600,
+  Widget build(BuildContext context) => Row(
+    spacing: 16,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      Icon(icon, color: context.colorScheme.secondary),
+      Flexible(child: child),
+    ],
+  );
+}
+
+class _CardContainer extends StatelessWidget {
+  final List<Widget> children;
+
+  const _CardContainer({required this.children});
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: double.infinity,
+    child: Card(
+      margin: EdgeInsets.zero,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(32),
+          topRight: Radius.circular(32),
         ),
-        hintText: 'R\$0,00',
-        hintStyle: context.textTheme.bodyMedium?.copyWith(
-          fontSize: 32,
-          color: context.colorScheme.outline,
-        ),
-        border: const UnderlineInputBorder(),
-        contentPadding: const EdgeInsets.symmetric(vertical: 8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(spacing: 16, children: children),
       ),
     ),
   );
+}
+
+class _SaveButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _SaveButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) =>
+      IconButton.filled(onPressed: onPressed, icon: const Icon(Icons.check));
 }
