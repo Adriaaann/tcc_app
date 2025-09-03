@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:tcc_app/themes/theme.dart';
 import 'package:tcc_app/utils/typography.dart';
@@ -6,7 +7,9 @@ import 'package:tcc_app/utils/typography.dart';
 import 'package:tcc_app/views/welcome_page.dart';
 import 'package:tcc_app/views/pages/widget_tree.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(const MyApp());
 }
 
