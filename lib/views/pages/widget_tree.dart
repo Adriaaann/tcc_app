@@ -5,15 +5,6 @@ import 'package:tcc_app/views/pages/graphs_page.dart';
 import 'package:tcc_app/views/pages/home_page.dart';
 import 'package:tcc_app/views/widgets/navbar_widget.dart';
 
-final durationOptions = [
-  {'value': '7_days', 'label': '7 Dias'},
-  {'value': '15_days', 'label': '15 Dias'},
-  {'value': '30_days', 'label': '30 Dias'},
-  {'value': '3_months', 'label': '3 Meses'},
-  {'value': '6_months', 'label': '6 Meses'},
-  {'value': '12_months', 'label': '12 Meses'},
-];
-
 final sectionData = [
   {'color': Colors.blue, 'label': 'Cat 1', 'value': 25.0},
   {'color': Colors.deepOrange, 'label': 'Category 2', 'value': 15.0},
@@ -22,20 +13,6 @@ final sectionData = [
   {'color': Colors.orange, 'label': 'Category 5', 'value': 5.0},
   {'color': Colors.purpleAccent, 'label': 'Cat 6', 'value': 15.0},
   {'color': Colors.teal, 'label': 'Cat 7', 'value': 10.0},
-];
-
-final tabList = ['Despesas', 'Assinaturas'];
-
-final chipList = [
-  'Restaurant',
-  'Travel',
-  'Shopping',
-  'Bills',
-  'Groceries',
-  'Car',
-  'Education',
-  'Streaming',
-  'Gym',
 ];
 
 final List<FinancialItem> example15Items = List.generate(
@@ -101,7 +78,7 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      Home(tabController: tabController),
+      HomePage(tabController: tabController),
       const GraphsPage(),
     ];
 

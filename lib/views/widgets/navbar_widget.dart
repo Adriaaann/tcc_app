@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:tcc_app/utils/route_to_method.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
 import 'package:tcc_app/views/data/notifiers.dart';
+import 'package:tcc_app/views/pages/financial_form_page.dart';
 
 void main() => runApp(const NavbarWidget());
 
@@ -45,7 +47,9 @@ class NavbarWidget extends StatelessWidget {
 class _AddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: () {},
+    onTap: () {
+      RouteToMethod(context, const FinancialFormPage(title: 'Criar'));
+    },
     child: Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
