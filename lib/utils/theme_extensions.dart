@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tcc_app/models/color_family_model.dart';
 import 'package:tcc_app/themes/theme.dart';
 
 extension ThemeContext on BuildContext {
@@ -11,18 +12,18 @@ extension ExtendedColorScheme on ColorScheme {
   ColorFamily get success {
     switch (brightness) {
       case Brightness.light:
-        return MaterialTheme.success.light;
+        return MaterialTheme.lightScheme().success;
       case Brightness.dark:
-        return MaterialTheme.success.dark;
+        return MaterialTheme.darkScheme().success;
     }
   }
 
   ColorFamily get warning {
     switch (brightness) {
       case Brightness.light:
-        return MaterialTheme.warning.light;
+        return MaterialTheme.lightScheme().warning;
       case Brightness.dark:
-        return MaterialTheme.warning.dark;
+        return MaterialTheme.darkScheme().warning;
     }
   }
 }
