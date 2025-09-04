@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tcc_app/models/financial_form_data_model.dart';
 import 'package:tcc_app/utils/route_to_method.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
-import 'package:tcc_app/views/data/categories_list.dart';
 import 'package:tcc_app/views/data/notifiers.dart';
 import 'package:tcc_app/views/pages/financial_form_page.dart';
 
@@ -50,18 +48,7 @@ class _AddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GestureDetector(
     onTap: () {
-      RouteToMethod(
-        context,
-        const FinancialFormPage(
-          title: 'Criar',
-          // initialData: FinancialFormData(
-          //   date: DateTime.now(),
-          //   value: '25',
-          //   title: 'Teste',
-          //   category: categoriesList[2].key,
-          // ),
-        ),
-      );
+      routeToMethod(context, const FinancialFormPage(isEdit: false));
     },
     child: Container(
       padding: const EdgeInsets.all(8),

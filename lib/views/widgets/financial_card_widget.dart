@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tcc_app/models/financial_form_data_model.dart';
+import 'package:tcc_app/utils/refresh_db.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
 import 'package:tcc_app/views/data/categories_list.dart';
+import 'package:tcc_app/views/pages/financial_form_page.dart';
 
 class FinancialCard extends StatelessWidget {
   const FinancialCard({super.key, required this.items});
@@ -15,16 +17,29 @@ class FinancialCard extends StatelessWidget {
           (item) => ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             leading: CircleAvatar(
-              backgroundColor: context.colorScheme.primaryContainer.withValues(
-                alpha: 0.5,
-              ),
+              backgroundColor: categoriesList
+                  .firstWhere((c) => c.key == item.category)
+                  .backgroundColor,
               child: Icon(
                 categoriesList.firstWhere((c) => c.key == item.category).icon,
-                color: context.colorScheme.primary,
+                color: categoriesList
+                    .firstWhere((c) => c.key == item.category)
+                    .labelColor,
                 size: 24,
               ),
             ),
             title: _TileBody(item: item),
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      FinancialFormPage(isEdit: true, initialData: item),
+                ),
+              );
+
+              await refreshFinancialData();
+            },
           ),
         )
         .toList(),

@@ -1,6 +1,7 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:tcc_app/models/financial_form_data_model.dart';
+import 'package:tcc_app/services/db_helper.dart';
+import 'package:tcc_app/utils/refresh_db.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
 import 'package:tcc_app/views/data/categories_list.dart';
 import 'package:tcc_app/views/widgets/financial_form/category_field_widget.dart';
@@ -17,10 +18,10 @@ class FormFieldItem {
 }
 
 class FinancialFormPage extends StatefulWidget {
-  final String title;
+  final bool isEdit;
   final FinancialFormData? initialData;
 
-  const FinancialFormPage({super.key, required this.title, this.initialData});
+  const FinancialFormPage({super.key, required this.isEdit, this.initialData});
 
   @override
   State<FinancialFormPage> createState() => _FinancialFormPageState();
@@ -68,7 +69,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
             );
   }
 
-  void saveForm() {
+  Future<void> saveForm() async {
     if (valueController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -84,7 +85,23 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
       title: titleController.text.isNotEmpty ? titleController.text : null,
     );
 
-    log('Form salvo: $formData');
+    final db = await DbHelper.instance.database;
+
+    if (formData!.id != null) {
+      await db.update(
+        'expenses',
+        formData!.toMap(),
+        where: 'id = ?',
+        whereArgs: [formData!.id],
+      );
+    } else {
+      final id = await db.insert('expenses', formData!.toMap());
+      formData = formData!.copyWith(id: id);
+    }
+
+    await refreshFinancialData();
+
+    if (mounted) Navigator.pop(context);
   }
 
   @override
@@ -122,7 +139,10 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
         backgroundColor: context.colorScheme.secondaryContainer,
         appBar: AppBar(
           backgroundColor: context.colorScheme.secondaryContainer,
-          title: Text(widget.title, style: context.textTheme.titleLarge),
+          title: Text(
+            widget.isEdit ? 'Editar' : 'Criar',
+            style: context.textTheme.titleLarge,
+          ),
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.only(top: 8),
@@ -179,7 +199,6 @@ class _CardContainer extends StatelessWidget {
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(32),
           topRight: Radius.circular(32),
-          //! Remover após adicionar o restante das funcionalidades
           bottomLeft: Radius.circular(32),
           bottomRight: Radius.circular(32),
         ),

@@ -18,11 +18,7 @@ class HomePage extends StatelessWidget {
             durationOptions: durationOptions,
             sectionData: sectionData,
           ),
-          FinancialWidget(
-            tabList: tabBarTitles,
-            tabController: tabController,
-            cardItems: combinedItems,
-          ),
+          FinancialWidget(tabList: tabBarTitles, tabController: tabController),
         ],
       ),
     ),

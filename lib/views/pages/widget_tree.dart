@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tcc_app/models/financial_form_data_model.dart';
 import 'package:tcc_app/views/data/notifiers.dart';
 import 'package:tcc_app/views/pages/graphs_page.dart';
 import 'package:tcc_app/views/pages/home_page.dart';
@@ -13,42 +12,6 @@ final sectionData = [
   {'color': Colors.orange, 'label': 'Category 5', 'value': 5.0},
   {'color': Colors.purpleAccent, 'label': 'Cat 6', 'value': 15.0},
   {'color': Colors.teal, 'label': 'Cat 7', 'value': 10.0},
-];
-
-final List<FinancialFormData> example15Items = List.generate(
-  10,
-  (index) => FinancialFormData(
-    date: DateTime(2025, 9, 1, 8 + (index % 12), (index * 5) % 60),
-    title: 'Gasto $index',
-    value: 'R\$ ${100 + index * 10},00',
-    category: 'others',
-  ),
-);
-
-final List<FinancialFormData> example3Items = [
-  FinancialFormData(
-    date: DateTime(2025, 9, 1, 12, 30),
-    title: 'Almoço',
-    value: 'R\$ 45,00',
-    category: 'food',
-  ),
-  FinancialFormData(
-    date: DateTime(2025, 9, 1, 15, 0),
-    title: 'Café',
-    value: 'R\$ 12,50',
-    category: 'food',
-  ),
-  FinancialFormData(
-    date: DateTime(2025, 9, 1, 18, 15),
-    title: 'Passagem',
-    value: 'R\$ 7,25',
-    category: 'transport',
-  ),
-];
-
-final List<List<FinancialFormData>> combinedItems = [
-  example15Items,
-  example3Items,
 ];
 
 class WidgetTree extends StatefulWidget {
