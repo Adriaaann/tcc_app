@@ -27,57 +27,47 @@ class _FinancialWidgetState extends State<FinancialWidget> {
   }
 
   @override
-  Widget build(BuildContext context) => FutureBuilder<bool>(
-    future: hasFinancialData(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState != ConnectionState.done) {
-        return const Center(child: CircularProgressIndicator());
-      }
-
-      if (snapshot.hasError) {
-        return Center(child: Text('Erro: ${snapshot.error}'));
-      }
-
-      final hasData = snapshot.data ?? false;
-
-      if (!hasData) {
-        return Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Text(
-            'Nenhum dado encontrado.\nClique no botão abaixo para começar.',
-            textAlign: TextAlign.center,
-            style: context.textTheme.titleMedium?.copyWith(
-              color: context.colorScheme.primary,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        );
-      }
-
-      return ValueListenableBuilder<List<List<FinancialFormData>>>(
+  Widget build(BuildContext context) =>
+      ValueListenableBuilder<List<List<FinancialFormData>>>(
         valueListenable: financialDataNotifier,
-        builder: (context, cardItems, _) => Padding(
-          padding: const EdgeInsets.only(top: 16),
-          child: Column(
-            children: [
-              CustomTabBar(
-                tabList: widget.tabList,
-                tabController: widget.tabController,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: AnimatedBuilder(
-                  animation: widget.tabController,
-                  builder: (context, _) {
-                    final index = widget.tabController.index;
-                    return FinancialCard(items: cardItems[index]);
-                  },
+        builder: (context, cardItems, _) {
+          final hasData = cardItems.any((list) => list.isNotEmpty);
+
+          if (!hasData) {
+            return Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Text(
+                'Nenhum dado encontrado.\nClique no botão abaixo para começar.',
+                textAlign: TextAlign.center,
+                style: context.textTheme.titleMedium?.copyWith(
+                  color: context.colorScheme.primary,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-            ],
-          ),
-        ),
+            );
+          }
+
+          return Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Column(
+              children: [
+                CustomTabBar(
+                  tabList: widget.tabList,
+                  tabController: widget.tabController,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: AnimatedBuilder(
+                    animation: widget.tabController,
+                    builder: (context, _) {
+                      final index = widget.tabController.index;
+                      return FinancialCard(items: cardItems[index]);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       );
-    },
-  );
 }
