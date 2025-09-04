@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:tcc_app/models/financial_form_data_model.dart';
+import 'package:tcc_app/models/form_field_item_model.dart';
 import 'package:tcc_app/services/db_helper.dart';
-import 'package:tcc_app/utils/refresh_db.dart';
+import 'package:tcc_app/services/db_utils.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
 import 'package:tcc_app/views/data/categories_list.dart';
+import 'package:tcc_app/views/widgets/financial_form/card_container_widget.dart';
 import 'package:tcc_app/views/widgets/financial_form/category_field_widget.dart';
 import 'package:tcc_app/views/widgets/financial_form/date_time_field_widget.dart';
+import 'package:tcc_app/views/widgets/financial_form/form_button_widget.dart';
+import 'package:tcc_app/views/widgets/financial_form/form_field_widget.dart';
 import 'package:tcc_app/views/widgets/financial_form/title_field_widget.dart';
 import 'package:tcc_app/views/widgets/financial_form/value_field_widget.dart';
 import 'package:tcc_app/views/widgets/pop_alert_widget.dart';
-
-class FormFieldItem {
-  final IconData icon;
-  final Widget widget;
-
-  const FormFieldItem({required this.icon, required this.widget});
-}
 
 class FinancialFormPage extends StatefulWidget {
   final bool isEdit;
@@ -69,6 +66,15 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
             );
   }
 
+  Future<void> deleteFormData(FinancialFormData data) async {
+    if (data.id == null) return;
+
+    final db = await DbHelper.instance.database;
+    await db.delete('expenses', where: 'id = ?', whereArgs: [data.id]);
+
+    await refreshFinancialData();
+  }
+
   Future<void> saveForm() async {
     if (valueController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -102,6 +108,35 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
     await refreshFinancialData();
 
     if (mounted) Navigator.pop(context);
+  }
+
+  Future<void> confirmDelete(FinancialFormData data) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Apagar?'),
+        content: const Text('Deseja realmente deletar este item?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Deletar'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete == true) {
+      final db = await DbHelper.instance.database;
+      if (data.id != null) {
+        await db.delete('expenses', where: 'id = ?', whereArgs: [data.id]);
+        await refreshFinancialData();
+        if (mounted) Navigator.pop(context);
+      }
+    }
   }
 
   @override
@@ -151,13 +186,28 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               ValueField(controller: valueController),
-              _CardContainer(
+              CardContainerWidget(
                 children: [
                   ...fieldItems.map(
                     (field) =>
-                        _FormField(icon: field.icon, child: field.widget),
+                        FormFieldWidget(icon: field.icon, child: field.widget),
                   ),
-                  _SaveButton(onPressed: saveForm),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      FormButtonWidget(
+                        onPressed: saveForm,
+                        icon: Icons.check_rounded,
+                        backgroundColor: context.colorScheme.primary,
+                      ),
+                      if (widget.isEdit)
+                        FormButtonWidget(
+                          onPressed: () => confirmDelete(formData!),
+                          icon: Icons.delete_rounded,
+                          backgroundColor: context.colorScheme.error,
+                        ),
+                    ],
+                  ),
                 ],
               ),
             ],
@@ -166,57 +216,4 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
       ),
     );
   }
-}
-
-class _FormField extends StatelessWidget {
-  final IconData icon;
-  final Widget child;
-
-  const _FormField({required this.icon, required this.child});
-
-  @override
-  Widget build(BuildContext context) => Row(
-    spacing: 16,
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      Icon(icon, color: context.colorScheme.secondary),
-      Flexible(child: child),
-    ],
-  );
-}
-
-class _CardContainer extends StatelessWidget {
-  final List<Widget> children;
-
-  const _CardContainer({required this.children});
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    width: double.infinity,
-    child: Card(
-      margin: EdgeInsets.zero,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(32),
-          topRight: Radius.circular(32),
-          bottomLeft: Radius.circular(32),
-          bottomRight: Radius.circular(32),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(spacing: 16, children: children),
-      ),
-    ),
-  );
-}
-
-class _SaveButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const _SaveButton({required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) =>
-      IconButton.filled(onPressed: onPressed, icon: const Icon(Icons.check));
 }
