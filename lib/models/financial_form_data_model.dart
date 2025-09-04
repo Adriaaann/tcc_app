@@ -1,7 +1,7 @@
 class FinancialFormData {
   final int? id;
   final DateTime date;
-  final String value;
+  final double value;
   final String category;
   final String? title;
 
@@ -16,7 +16,7 @@ class FinancialFormData {
   FinancialFormData copyWith({
     int? id,
     DateTime? date,
-    String? value,
+    double? value,
     String? category,
     String? title,
   }) => FinancialFormData(
@@ -39,7 +39,7 @@ class FinancialFormData {
       FinancialFormData(
         id: map['id'] as int?,
         date: DateTime.parse(map['date'] as String),
-        value: map['value'] as String,
+        value: map['value'] as double,
         category: map['category'] as String,
         title: map['title'] as String?,
       );

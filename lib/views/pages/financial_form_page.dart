@@ -1,8 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:tcc_app/models/financial_form_data_model.dart';
 import 'package:tcc_app/models/form_field_item_model.dart';
 import 'package:tcc_app/services/db_helper.dart';
 import 'package:tcc_app/services/db_utils.dart';
+import 'package:tcc_app/utils/format_currency_method.dart';
+import 'package:tcc_app/utils/parse_double_method.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
 import 'package:tcc_app/views/data/categories_list.dart';
 import 'package:tcc_app/views/widgets/financial_form/card_container_widget.dart';
@@ -35,7 +39,9 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
 
     if (widget.initialData != null) {
       formData = widget.initialData;
-      valueController.text = formData!.value;
+
+      valueController.text = formatCurrency(formData!.value);
+
       if (formData!.title != null) {
         titleController.text = formData!.title!;
       }
@@ -44,7 +50,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
 
   void _updateFormData({
     DateTime? date,
-    String? value,
+    double? value,
     String? category,
     String? title,
   }) {
@@ -52,7 +58,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
         (formData ??
                 FinancialFormData(
                   date: date ?? DateTime.now(),
-                  value: value ?? valueController.text,
+                  value: value ?? 0.0,
                   category: category ?? categoriesList.first.key,
                   title: titleController.text.isNotEmpty
                       ? titleController.text
@@ -86,8 +92,11 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
       return;
     }
 
+    final parsedValue = parseDouble(valueController.text);
+
+    log(parsedValue.toString());
     _updateFormData(
-      value: valueController.text,
+      value: parsedValue,
       title: titleController.text.isNotEmpty ? titleController.text : null,
     );
 

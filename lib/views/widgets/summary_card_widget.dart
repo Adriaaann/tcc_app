@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:tcc_app/services/db_get.dart';
+import 'package:tcc_app/services/db_helper.dart';
+import 'package:tcc_app/utils/format_currency_method.dart';
+import 'package:tcc_app/utils/get_financial_sum_method.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
-import 'package:tcc_app/views/widgets/dropdown_widget.dart';
+import 'package:tcc_app/views/data/notifiers.dart';
 import 'package:tcc_app/views/widgets/piechart_widget.dart';
 
-class SummaryCardWidget extends StatelessWidget {
+class SummaryCardWidget extends StatefulWidget {
   final List<Map<String, String>> durationOptions;
   final List<Map<String, Object>> sectionData;
 
@@ -14,36 +18,72 @@ class SummaryCardWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    width: double.infinity,
-    child: Card(
-      elevation: 3,
-      margin: EdgeInsets.zero,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(16),
-          bottomRight: Radius.circular(16),
+  State<SummaryCardWidget> createState() => _SummaryCardWidgetState();
+}
+
+class _SummaryCardWidgetState extends State<SummaryCardWidget> {
+  final ValueNotifier<double> totalValueNotifier = ValueNotifier(0.0);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTotalValue();
+
+    financialDataNotifier.addListener(() {
+      _loadTotalValue();
+    });
+  }
+
+  Future<void> _loadTotalValue() async {
+    final db = DbHelper.instance;
+    final expenses = await db.getAll('expenses');
+    final subscriptions = await db.getAll('subscriptions');
+
+    totalValueNotifier.value = getFinancialSumMethod([
+      ...expenses,
+      ...subscriptions,
+    ]);
+  }
+
+  @override
+  void dispose() {
+    totalValueNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<double>(
+    valueListenable: totalValueNotifier,
+    builder: (context, totalValue, _) => SizedBox(
+      width: double.infinity,
+      child: Card(
+        elevation: 3,
+        margin: EdgeInsets.zero,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(16),
+            bottomRight: Radius.circular(16),
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Column(
-          spacing: 16,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _SummaryHeader(
-              text: 'Resumo',
-              defaultValue: '30_days',
-              durationOptions: durationOptions,
-            ),
-            const _DisplayValue(
-              text: 'Total de Gastos',
-              value: r'R$ 1.000,25',
-              blank: true,
-              negative: false,
-            ),
-            PiechartWidget(data: sectionData),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _SummaryHeader(
+                text: 'Resumo',
+                defaultValue: '30_days',
+                durationOptions: widget.durationOptions,
+              ),
+              _DisplayValue(
+                text: 'Total de Gastos',
+                value: totalValue,
+                blank: true,
+                negative: false,
+              ),
+              PiechartWidget(data: widget.sectionData),
+            ],
+          ),
         ),
       ),
     ),
@@ -66,8 +106,6 @@ class _SummaryHeader extends StatelessWidget {
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
       Row(
-        spacing: 8,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             text,
@@ -76,7 +114,8 @@ class _SummaryHeader extends StatelessWidget {
               color: context.colorScheme.primary,
             ),
           ),
-          DropdownWidget(defaultValue: defaultValue, options: durationOptions),
+          const SizedBox(width: 8),
+          // DropdownWidget(defaultValue: defaultValue, options: durationOptions),
         ],
       ),
       IconButton.filledTonal(onPressed: () {}, icon: const Icon(Icons.person)),
@@ -93,7 +132,7 @@ class _DisplayValue extends StatelessWidget {
   });
 
   final String text;
-  final String value;
+  final double value;
   final bool negative;
   final bool blank;
 
@@ -113,7 +152,6 @@ class _DisplayValue extends StatelessWidget {
           border: Border(left: BorderSide(color: statusColor, width: 4)),
         ),
         child: Column(
-          spacing: 4,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -123,7 +161,7 @@ class _DisplayValue extends StatelessWidget {
               ),
             ),
             Text(
-              value,
+              formatCurrency(value),
               style: context.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w500,
               ),

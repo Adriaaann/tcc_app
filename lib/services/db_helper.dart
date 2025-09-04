@@ -18,7 +18,18 @@ class DbHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'finance.db');
 
-    return openDatabase(path, version: 1, onCreate: _onCreate);
+    return openDatabase(
+      path,
+      version: 2,
+      onCreate: _onCreate,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('DROP TABLE IF EXISTS expenses');
+          await db.execute('DROP TABLE IF EXISTS subscriptions');
+          await _onCreate(db, newVersion);
+        }
+      },
+    );
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -26,7 +37,7 @@ class DbHelper {
       CREATE TABLE expenses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         date TEXT NOT NULL,
-        value TEXT NOT NULL,
+        value REAL NOT NULL,
         category TEXT NOT NULL,
         title TEXT
       )
@@ -36,7 +47,7 @@ class DbHelper {
       CREATE TABLE subscriptions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         date TEXT NOT NULL,
-        value TEXT NOT NULL,
+        value REAL NOT NULL,
         category TEXT NOT NULL,
         title TEXT
       )
@@ -45,6 +56,7 @@ class DbHelper {
 
   Future<int> insert(String table, FinancialFormData data) async {
     final db = await database;
+
     return db.insert(table, {
       'date': data.date.toIso8601String(),
       'value': data.value,
@@ -55,6 +67,7 @@ class DbHelper {
 
   Future<int> update(String table, FinancialFormData data, int id) async {
     final db = await database;
+
     return db.update(
       table,
       {
@@ -71,22 +84,5 @@ class DbHelper {
   Future<int> delete(String table, int id) async {
     final db = await database;
     return db.delete(table, where: 'id = ?', whereArgs: [id]);
-  }
-
-  Future<List<FinancialFormData>> getAll(String table) async {
-    final db = await database;
-    final maps = await db.query(table);
-
-    return maps
-        .map(
-          (map) => FinancialFormData(
-            id: map['id'] as int,
-            date: DateTime.parse(map['date'] as String),
-            value: map['value'] as String,
-            category: map['category'] as String,
-            title: map['title'] as String?,
-          ),
-        )
-        .toList();
   }
 }

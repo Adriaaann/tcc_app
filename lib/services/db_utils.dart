@@ -1,12 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:tcc_app/models/financial_form_data_model.dart';
 import 'package:tcc_app/services/db_helper.dart';
-
-final financialDataNotifier = ValueNotifier<List<List<FinancialFormData>>>([
-  [],
-  [],
-]);
+import 'package:tcc_app/views/data/notifiers.dart';
 
 Future<void> refreshFinancialData() async {
   final db = await DbHelper.instance.database;

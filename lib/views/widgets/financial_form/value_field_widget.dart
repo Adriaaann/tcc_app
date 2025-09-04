@@ -15,6 +15,7 @@ class ValueField extends StatefulWidget {
 class _ValueFieldState extends State<ValueField> {
   final formatter = CurrencyTextInputFormatter.currency(
     name: 'BRL',
+    locale: 'pt_BR',
     symbol: 'R\$',
     decimalDigits: 2,
     maxValue: 1000000,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tcc_app/models/financial_form_data_model.dart';
 import 'package:tcc_app/services/db_utils.dart';
+import 'package:tcc_app/utils/format_currency_method.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
 import 'package:tcc_app/views/data/categories_list.dart';
 import 'package:tcc_app/views/pages/financial_form_page.dart';
@@ -86,7 +87,7 @@ class _TileBody extends StatelessWidget {
               ),
             ),
             Text(
-              item.value,
+              formatCurrency(item.value),
               style: context.textTheme.bodyLarge?.copyWith(fontSize: 20),
               softWrap: false,
             ),
