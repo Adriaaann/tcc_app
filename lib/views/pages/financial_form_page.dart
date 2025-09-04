@@ -1,4 +1,6 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:tcc_app/models/financial_form_data_model.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
 import 'package:tcc_app/views/data/categories_list.dart';
 import 'package:tcc_app/views/widgets/financial_form/category_field_widget.dart';
@@ -14,32 +16,56 @@ class FormFieldItem {
   const FormFieldItem({required this.icon, required this.widget});
 }
 
-class FinancialFormData {
-  DateTime? date;
-  String? value;
-  String? title;
-  String? category;
-}
-
 class FinancialFormPage extends StatefulWidget {
   final String title;
+  final FinancialFormData? initialData;
 
-  const FinancialFormPage({super.key, required this.title});
+  const FinancialFormPage({super.key, required this.title, this.initialData});
 
   @override
   State<FinancialFormPage> createState() => _FinancialFormPageState();
 }
 
 class _FinancialFormPageState extends State<FinancialFormPage> {
+  FinancialFormData? formData;
   final valueController = TextEditingController();
   final titleController = TextEditingController();
-  final FinancialFormData formData = FinancialFormData();
 
   @override
-  void dispose() {
-    titleController.dispose();
-    valueController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+
+    if (widget.initialData != null) {
+      formData = widget.initialData;
+      valueController.text = formData!.value;
+      if (formData!.title != null) {
+        titleController.text = formData!.title!;
+      }
+    }
+  }
+
+  void _updateFormData({
+    DateTime? date,
+    String? value,
+    String? category,
+    String? title,
+  }) {
+    formData =
+        (formData ??
+                FinancialFormData(
+                  date: date ?? DateTime.now(),
+                  value: value ?? valueController.text,
+                  category: category ?? categoriesList.first.key,
+                  title: titleController.text.isNotEmpty
+                      ? titleController.text
+                      : null,
+                ))
+            .copyWith(
+              date: date,
+              value: value,
+              category: category,
+              title: title,
+            );
   }
 
   void saveForm() {
@@ -53,9 +79,12 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
       return;
     }
 
-    formData
-      ..value = valueController.text
-      ..title = titleController.text;
+    _updateFormData(
+      value: valueController.text,
+      title: titleController.text.isNotEmpty ? titleController.text : null,
+    );
+
+    log('Form salvo: $formData');
   }
 
   @override
@@ -64,7 +93,8 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
       FormFieldItem(
         icon: Icons.calendar_month_rounded,
         widget: DateTimeFieldWidget(
-          onDateTimeSelected: (date) => formData.date = date,
+          initialDateTime: formData?.date,
+          onDateTimeSelected: (date) => _updateFormData(date: date),
         ),
       ),
       FormFieldItem(
@@ -75,9 +105,14 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
         icon: Icons.bookmark_outline_rounded,
         widget: CategoryFieldWidget(
           categories: categoriesList,
-          onCategorySelected: (category) {
-            formData.category = category.key;
-          },
+          initialCategory: formData != null
+              ? categoriesList.firstWhere(
+                  (c) => c.key == formData!.category,
+                  orElse: () => categoriesList.first,
+                )
+              : null,
+          onCategorySelected: (category) =>
+              _updateFormData(category: category.key),
         ),
       ),
     ];

@@ -30,4 +30,11 @@ final List<Category> categoriesList = [
     backgroundColor: Colors.green.shade100,
     labelColor: Colors.green.shade900,
   ),
+  Category(
+    key: 'others',
+    label: 'Outros',
+    icon: Icons.more_horiz_rounded,
+    backgroundColor: Colors.grey.shade300,
+    labelColor: Colors.grey.shade900,
+  ),
 ];

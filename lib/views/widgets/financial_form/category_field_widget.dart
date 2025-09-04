@@ -5,11 +5,13 @@ import 'package:tcc_app/utils/theme_extensions.dart';
 class CategoryFieldWidget extends StatefulWidget {
   final List<Category> categories;
   final ValueChanged<Category> onCategorySelected;
+  final Category? initialCategory;
 
   const CategoryFieldWidget({
     super.key,
     required this.categories,
     required this.onCategorySelected,
+    this.initialCategory,
   });
 
   @override
@@ -22,7 +24,7 @@ class _CategoryFieldWidgetState extends State<CategoryFieldWidget> {
   @override
   void initState() {
     super.initState();
-    selectedCategory = widget.categories.first;
+    selectedCategory = widget.initialCategory ?? widget.categories.last;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.onCategorySelected(selectedCategory);
     });

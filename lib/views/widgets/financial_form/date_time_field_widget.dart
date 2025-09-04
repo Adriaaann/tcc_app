@@ -4,8 +4,13 @@ import 'package:tcc_app/utils/theme_extensions.dart';
 
 class DateTimeFieldWidget extends StatefulWidget {
   final Function(DateTime) onDateTimeSelected;
+  final DateTime? initialDateTime;
 
-  const DateTimeFieldWidget({super.key, required this.onDateTimeSelected});
+  const DateTimeFieldWidget({
+    super.key,
+    required this.onDateTimeSelected,
+    this.initialDateTime,
+  });
 
   @override
   State<DateTimeFieldWidget> createState() => _DateTimeFieldWidgetState();
@@ -19,10 +24,20 @@ class _DateTimeFieldWidgetState extends State<DateTimeFieldWidget> {
   @override
   void initState() {
     super.initState();
-    selectedDateTime = DateTime.now();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.onDateTimeSelected(selectedDateTime!);
-    });
+
+    if (widget.initialDateTime != null) {
+      selectedDateTime = widget.initialDateTime;
+      isSelected = [false, true];
+      showTimeWidget = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.onDateTimeSelected(selectedDateTime!);
+      });
+    } else {
+      selectedDateTime = DateTime.now();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.onDateTimeSelected(selectedDateTime!);
+      });
+    }
   }
 
   Future<void> _handlePressed(int index) async {
