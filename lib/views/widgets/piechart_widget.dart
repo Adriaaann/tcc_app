@@ -14,6 +14,7 @@ class PiechartWidget extends StatefulWidget {
 
 class _PiechartWidgetState extends State<PiechartWidget> {
   int touchedIndex = -1;
+
   @override
   Widget build(BuildContext context) => SizedBox(
     width: double.infinity,
@@ -42,7 +43,7 @@ class _PiechartWidgetState extends State<PiechartWidget> {
                   },
                 ),
                 sections: pieChartSection(),
-                sectionsSpace: 2,
+                sectionsSpace: 1,
                 centerSpaceRadius: 48,
                 startDegreeOffset: 16,
               ),
@@ -83,7 +84,7 @@ class _PiechartWidgetState extends State<PiechartWidget> {
             fontWeight: FontWeight.w700,
             color: context.colorScheme.secondary,
           ),
-          titlePositionPercentageOffset: -1.1,
+          titlePositionPercentageOffset: -1.5,
           color: data['color'] as Color,
           radius: radius,
         );

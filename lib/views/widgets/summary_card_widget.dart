@@ -1,92 +1,99 @@
 import 'package:flutter/material.dart';
-import 'package:tcc_app/services/db_get.dart';
-import 'package:tcc_app/services/db_helper.dart';
-import 'package:tcc_app/utils/format_currency_method.dart';
-import 'package:tcc_app/utils/get_financial_sum_method.dart';
-import 'package:tcc_app/utils/theme_extensions.dart';
+import 'package:tcc_app/models/financial_form_data_model.dart';
+import 'package:tcc_app/views/data/categories_list.dart';
 import 'package:tcc_app/views/data/notifiers.dart';
 import 'package:tcc_app/views/widgets/piechart_widget.dart';
+import 'package:tcc_app/utils/get_financial_sum_method.dart';
+import 'package:tcc_app/utils/theme_extensions.dart';
+import 'package:tcc_app/utils/format_currency_method.dart';
 
-class SummaryCardWidget extends StatefulWidget {
+class SummaryCardWidget extends StatelessWidget {
   final List<Map<String, String>> durationOptions;
-  final List<Map<String, Object>> sectionData;
 
-  const SummaryCardWidget({
-    super.key,
-    required this.durationOptions,
-    required this.sectionData,
-  });
+  const SummaryCardWidget({super.key, required this.durationOptions});
 
-  @override
-  State<SummaryCardWidget> createState() => _SummaryCardWidgetState();
-}
+  List<Map<String, Object>> _calculateSectionData(
+    List<FinancialFormData> allItems,
+  ) {
+    final Map<String, double> categoryTotals = {};
+    double total = 0.0;
 
-class _SummaryCardWidgetState extends State<SummaryCardWidget> {
-  final ValueNotifier<double> totalValueNotifier = ValueNotifier(0.0);
+    for (var item in allItems) {
+      categoryTotals[item.category] =
+          (categoryTotals[item.category] ?? 0.0) + item.value;
+      total += item.value;
+    }
 
-  @override
-  void initState() {
-    super.initState();
-    _loadTotalValue();
+    if (total == 0) return [];
 
-    financialDataNotifier.addListener(() {
-      _loadTotalValue();
+    final filteredCategories = categoriesList
+        .where((cat) => (categoryTotals[cat.key] ?? 0.0) > 0)
+        .toList();
+
+    return List.generate(filteredCategories.length, (index) {
+      final cat = filteredCategories[index];
+      final value = categoryTotals[cat.key]!;
+      final percentage = double.parse(
+        ((value / total) * 100).toStringAsFixed(2),
+      );
+      return {
+        'color': index == filteredCategories.length - 1
+            ? cat.backgroundColor
+            : cat.labelColor,
+        'label': cat.label,
+        'value': percentage,
+      };
     });
   }
 
-  Future<void> _loadTotalValue() async {
-    final db = DbHelper.instance;
-    final expenses = await db.getAll('expenses');
-    final subscriptions = await db.getAll('subscriptions');
-
-    totalValueNotifier.value = getFinancialSumMethod([
-      ...expenses,
-      ...subscriptions,
-    ]);
-  }
+  double _calculateTotal(List<FinancialFormData> allItems) =>
+      getFinancialSumMethod(allItems);
 
   @override
-  void dispose() {
-    totalValueNotifier.dispose();
-    super.dispose();
-  }
+  Widget build(
+    BuildContext context,
+  ) => ValueListenableBuilder<List<List<FinancialFormData>>>(
+    valueListenable: financialDataNotifier,
+    builder: (context, cardItems, _) {
+      // Junta despesas e assinaturas
+      final allItems = [...cardItems[0], ...cardItems[1]];
+      final totalValue = _calculateTotal(allItems);
+      final sectionData = _calculateSectionData(allItems);
 
-  @override
-  Widget build(BuildContext context) => ValueListenableBuilder<double>(
-    valueListenable: totalValueNotifier,
-    builder: (context, totalValue, _) => SizedBox(
-      width: double.infinity,
-      child: Card(
-        elevation: 3,
-        margin: EdgeInsets.zero,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(16),
-            bottomRight: Radius.circular(16),
+      return SizedBox(
+        width: double.infinity,
+        child: Card(
+          elevation: 3,
+          margin: EdgeInsets.zero,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SummaryHeader(
+                  text: 'Resumo',
+                  defaultValue: '30_days',
+                  durationOptions: durationOptions,
+                ),
+                _DisplayValue(
+                  text: 'Total de Gastos',
+                  value: formatCurrency(totalValue),
+                  blank: true,
+                  negative: false,
+                ),
+                if (sectionData.isNotEmpty) PiechartWidget(data: sectionData),
+              ],
+            ),
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _SummaryHeader(
-                text: 'Resumo',
-                defaultValue: '30_days',
-                durationOptions: widget.durationOptions,
-              ),
-              _DisplayValue(
-                text: 'Total de Gastos',
-                value: totalValue,
-                blank: true,
-                negative: false,
-              ),
-              PiechartWidget(data: widget.sectionData),
-            ],
-          ),
-        ),
-      ),
-    ),
+      );
+    },
   );
 }
 
@@ -115,7 +122,6 @@ class _SummaryHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          // DropdownWidget(defaultValue: defaultValue, options: durationOptions),
         ],
       ),
       IconButton.filledTonal(onPressed: () {}, icon: const Icon(Icons.person)),
@@ -132,7 +138,7 @@ class _DisplayValue extends StatelessWidget {
   });
 
   final String text;
-  final double value;
+  final String value;
   final bool negative;
   final bool blank;
 
@@ -161,7 +167,7 @@ class _DisplayValue extends StatelessWidget {
               ),
             ),
             Text(
-              formatCurrency(value),
+              value,
               style: context.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w500,
               ),

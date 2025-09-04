@@ -88,7 +88,7 @@ class _CategoryFieldWidgetState extends State<CategoryFieldWidget> {
           ),
           avatar: Icon(
             selectedCategory.icon,
-            color: context.colorScheme.outline,
+            color: selectedCategory.labelColor,
           ),
           label: Text(
             selectedCategory.label,
