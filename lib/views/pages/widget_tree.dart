@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tcc_app/models/financial_item_model.dart';
+import 'package:tcc_app/models/financial_form_data_model.dart';
 import 'package:tcc_app/views/data/notifiers.dart';
 import 'package:tcc_app/views/pages/graphs_page.dart';
 import 'package:tcc_app/views/pages/home_page.dart';
@@ -15,42 +15,41 @@ final sectionData = [
   {'color': Colors.teal, 'label': 'Cat 7', 'value': 10.0},
 ];
 
-final List<FinancialItem> example15Items = List.generate(
+final List<FinancialFormData> example15Items = List.generate(
   10,
-  (index) => FinancialItem(
-    icon: Icons.shopping_cart,
-    hour: DateTime(2025, 9, 1, 8 + (index % 12), (index * 5) % 60),
+  (index) => FinancialFormData(
+    date: DateTime(2025, 9, 1, 8 + (index % 12), (index * 5) % 60),
     title: 'Gasto $index',
     value: 'R\$ ${100 + index * 10},00',
-    tags: ['tags $index', 'teste $index', 'tags $index'],
+    category: 'others',
   ),
 );
 
-final List<FinancialItem> example3Items = [
-  FinancialItem(
-    icon: Icons.restaurant,
-    hour: DateTime(2025, 9, 1, 12, 30),
+final List<FinancialFormData> example3Items = [
+  FinancialFormData(
+    date: DateTime(2025, 9, 1, 12, 30),
     title: 'Almoço',
     value: 'R\$ 45,00',
-    tags: ['Duas Tags', 'Café'],
+    category: 'food',
   ),
-  FinancialItem(
-    icon: Icons.local_cafe,
-    hour: DateTime(2025, 9, 1, 15, 0),
+  FinancialFormData(
+    date: DateTime(2025, 9, 1, 15, 0),
     title: 'Café',
     value: 'R\$ 12,50',
-    tags: [],
+    category: 'food',
   ),
-  FinancialItem(
-    icon: Icons.directions_bus,
-    hour: DateTime(2025, 9, 1, 18, 15),
+  FinancialFormData(
+    date: DateTime(2025, 9, 1, 18, 15),
     title: 'Passagem',
     value: 'R\$ 7,25',
-    tags: ['ABlubblbauba'],
+    category: 'transport',
   ),
 ];
 
-final List<List<FinancialItem>> combinedItems = [example15Items, example3Items];
+final List<List<FinancialFormData>> combinedItems = [
+  example15Items,
+  example3Items,
+];
 
 class WidgetTree extends StatefulWidget {
   const WidgetTree({super.key});

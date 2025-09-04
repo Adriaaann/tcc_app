@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:tcc_app/models/financial_item_model.dart';
+import 'package:tcc_app/models/financial_form_data_model.dart';
 import 'package:tcc_app/views/widgets/custom_tab_bar_widget.dart';
 import 'package:tcc_app/views/widgets/financial_card_widget.dart';
 
 class FinancialWidget extends StatelessWidget {
   final List<String> tabList;
   final TabController tabController;
-  final List<List<FinancialItem>> cardItems;
+  final List<List<FinancialFormData>> cardItems;
 
   const FinancialWidget({
     super.key,

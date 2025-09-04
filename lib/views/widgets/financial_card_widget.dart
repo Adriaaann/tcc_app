@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:tcc_app/models/financial_item_model.dart';
+import 'package:tcc_app/models/financial_form_data_model.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
-import 'package:tcc_app/views/widgets/chip_list_widget.dart';
+import 'package:tcc_app/views/data/categories_list.dart';
 
 class FinancialCard extends StatelessWidget {
   const FinancialCard({super.key, required this.items});
 
-  final List<FinancialItem> items;
+  final List<FinancialFormData> items;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -19,7 +19,7 @@ class FinancialCard extends StatelessWidget {
                 alpha: 0.5,
               ),
               child: Icon(
-                item.icon,
+                categoriesList.firstWhere((c) => c.key == item.category).icon,
                 color: context.colorScheme.primary,
                 size: 24,
               ),
@@ -34,7 +34,7 @@ class FinancialCard extends StatelessWidget {
 class _TileBody extends StatelessWidget {
   const _TileBody({required this.item});
 
-  final FinancialItem item;
+  final FinancialFormData item;
 
   @override
   Widget build(BuildContext context) {
@@ -53,14 +53,14 @@ class _TileBody extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '${item.hour.hour.toString().padLeft(2, '0')}:${item.hour.minute.toString().padLeft(2, '0')}',
+                    '${item.date.hour.toString().padLeft(2, '0')}:${item.date.minute.toString().padLeft(2, '0')}',
                     style: context.textTheme.bodySmall?.copyWith(
                       color: context.colorScheme.tertiary,
                     ),
                   ),
                   Flexible(
                     child: Text(
-                      item.title,
+                      item.title ?? '',
                       style: context.textTheme.bodyLarge,
                       softWrap: false,
                       overflow: TextOverflow.ellipsis,
@@ -77,7 +77,7 @@ class _TileBody extends StatelessWidget {
             ),
           ],
         ),
-        if (item.tags.isNotEmpty) ChipList(chips: item.tags),
+        // if (item.tags.isNotEmpty) ChipList(chips: item.tags),
       ],
     );
   }
