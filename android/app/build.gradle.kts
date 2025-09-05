@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.tc_app"
+    namespace = "com.example.finflow"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -26,8 +26,12 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 21
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        versionCode = 1
+        versionName = "0.0.1"
+    }
+
+    dependencies {
+        implementation("com.google.android.material:material:1.13.0")
     }
 
     buildTypes {
