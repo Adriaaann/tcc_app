@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.finflow"
+    namespace = "com.example.tc_app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -33,7 +33,7 @@ android {
     dependencies {
         implementation("com.google.android.material:material:1.13.0")
     }
-
+    
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
