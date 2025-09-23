@@ -2,9 +2,10 @@ import 'package:tcc_app/models/financial_form_data_model.dart';
 import 'package:tcc_app/services/db_helper.dart';
 
 extension DbHelperFilters on DbHelper {
-  Future<List<FinancialFormData>> getAll(String table) async {
+  // Get All From *TABLE*
+  Future<List<FinancialFormData>> getAllFrom(String table) async {
     final db = await database;
-    final maps = await db.query(table);
+    final maps = await db.query(table, orderBy: 'date DESC');
 
     return maps
         .map(
@@ -19,7 +20,9 @@ extension DbHelperFilters on DbHelper {
         .toList();
   }
 
-  Future<Map<String, List<FinancialFormData>>> getRecentMultiple({
+  // Get By Duration *DURATION VALUE*, *CATEGORY*, *TABLE*
+
+  Future<Map<String, List<FinancialFormData>>> getByDuration({
     required String durationValue,
     String? category,
     String table = 'all',
@@ -27,6 +30,7 @@ extension DbHelperFilters on DbHelper {
     final db = await database;
 
     DateTime fromDate = DateTime.now();
+
     switch (durationValue) {
       case '7_days':
         fromDate = fromDate.subtract(const Duration(days: 7));
@@ -53,6 +57,7 @@ extension DbHelperFilters on DbHelper {
     final whereClause = category != null && category.isNotEmpty
         ? 'date >= ? AND category = ?'
         : 'date >= ?';
+
     final whereArgs = category != null && category.isNotEmpty
         ? [fromDate.toIso8601String(), category]
         : [fromDate.toIso8601String()];

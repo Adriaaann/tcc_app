@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tcc_app/models/financial_form_data_model.dart';
-import 'package:tcc_app/services/db_utils.dart';
+import 'package:tcc_app/services/refresh.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
-import 'package:tcc_app/views/data/notifiers.dart';
 import 'package:tcc_app/views/widgets/custom_tab_bar_widget.dart';
 import 'package:tcc_app/views/widgets/financial_card_widget.dart';
 
@@ -24,14 +23,22 @@ class _FinancialWidgetState extends State<FinancialWidget> {
   @override
   void initState() {
     super.initState();
-    refreshFinancialData();
+    FinancialDataService.instance.refresh();
   }
 
   @override
   Widget build(BuildContext context) =>
-      ValueListenableBuilder<List<List<FinancialFormData>>>(
-        valueListenable: financialDataNotifier,
-        builder: (context, cardItems, _) {
+      StreamBuilder<List<List<FinancialFormData>>>(
+        stream: FinancialDataService.instance.stream,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Padding(
+              padding: EdgeInsets.only(top: 64),
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          final cardItems = snapshot.data!;
           final hasData = cardItems.any((list) => list.isNotEmpty);
 
           if (!hasData) {

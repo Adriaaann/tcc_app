@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:tcc_app/models/financial_form_data_model.dart';
 import 'package:tcc_app/models/form_field_item_model.dart';
 import 'package:tcc_app/services/db_helper.dart';
-import 'package:tcc_app/services/db_utils.dart';
+import 'package:tcc_app/services/refresh.dart';
 import 'package:tcc_app/utils/format_currency_method.dart';
 import 'package:tcc_app/utils/parse_double_method.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
@@ -78,7 +78,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
     final db = await DbHelper.instance.database;
     await db.delete('expenses', where: 'id = ?', whereArgs: [data.id]);
 
-    await refreshFinancialData();
+    await FinancialDataService.instance.refresh();
   }
 
   Future<void> saveForm() async {
@@ -114,7 +114,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
       formData = formData!.copyWith(id: id);
     }
 
-    await refreshFinancialData();
+    await FinancialDataService.instance.refresh();
 
     if (mounted) Navigator.pop(context);
   }
@@ -142,7 +142,9 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
       final db = await DbHelper.instance.database;
       if (data.id != null) {
         await db.delete('expenses', where: 'id = ?', whereArgs: [data.id]);
-        await refreshFinancialData();
+
+        await FinancialDataService.instance.refresh();
+
         if (mounted) Navigator.pop(context);
       }
     }

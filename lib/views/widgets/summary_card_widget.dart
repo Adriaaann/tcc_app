@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tcc_app/models/financial_form_data_model.dart';
+import 'package:tcc_app/services/refresh.dart';
 import 'package:tcc_app/views/data/categories_list.dart';
-import 'package:tcc_app/views/data/notifiers.dart';
 import 'package:tcc_app/views/widgets/piechart_widget.dart';
 import 'package:tcc_app/utils/get_financial_sum_method.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
@@ -52,13 +52,36 @@ class SummaryCardWidget extends StatelessWidget {
   @override
   Widget build(
     BuildContext context,
-  ) => ValueListenableBuilder<List<List<FinancialFormData>>>(
-    valueListenable: financialDataNotifier,
-    builder: (context, cardItems, _) {
-      // Junta despesas e assinaturas
+  ) => StreamBuilder<List<List<FinancialFormData>>>(
+    stream: FinancialDataService.instance.stream,
+    builder: (context, snapshot) {
+      if (snapshot.connectionState != ConnectionState.active) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      if (snapshot.hasError) {
+        return Center(child: Text('Erro: ${snapshot.error}'));
+      }
+
+      final cardItems = snapshot.data ?? [[], []];
+
       final allItems = [...cardItems[0], ...cardItems[1]];
       final totalValue = _calculateTotal(allItems);
       final sectionData = _calculateSectionData(allItems);
+
+      if (allItems.isEmpty) {
+        return Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Text(
+            'Nenhum dado encontrado.\nClique no botão abaixo para começar.',
+            textAlign: TextAlign.center,
+            style: context.textTheme.titleMedium?.copyWith(
+              color: context.colorScheme.primary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        );
+      }
 
       return SizedBox(
         width: double.infinity,
