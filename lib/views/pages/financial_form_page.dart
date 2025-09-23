@@ -1,10 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:tcc_app/models/financial_form_data_model.dart';
 import 'package:tcc_app/models/form_field_item_model.dart';
 import 'package:tcc_app/services/db_helper.dart';
-import 'package:tcc_app/services/refresh.dart';
+import 'package:tcc_app/services/financial_data_service.dart';
+import 'package:tcc_app/utils/confirm_delete_form.dart';
 import 'package:tcc_app/utils/format_currency_method.dart';
 import 'package:tcc_app/utils/parse_double_method.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
@@ -81,7 +80,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
     await FinancialDataService.instance.refresh();
   }
 
-  Future<void> saveForm() async {
+  Future<void> _saveForm() async {
     if (valueController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -94,7 +93,6 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
 
     final parsedValue = parseDouble(valueController.text);
 
-    log(parsedValue.toString());
     _updateFormData(
       value: parsedValue,
       title: titleController.text.isNotEmpty ? titleController.text : null,
@@ -117,37 +115,6 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
     await FinancialDataService.instance.refresh();
 
     if (mounted) Navigator.pop(context);
-  }
-
-  Future<void> confirmDelete(FinancialFormData data) async {
-    final shouldDelete = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Apagar?'),
-        content: const Text('Deseja realmente deletar este item?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Deletar'),
-          ),
-        ],
-      ),
-    );
-
-    if (shouldDelete == true) {
-      final db = await DbHelper.instance.database;
-      if (data.id != null) {
-        await db.delete('expenses', where: 'id = ?', whereArgs: [data.id]);
-
-        await FinancialDataService.instance.refresh();
-
-        if (mounted) Navigator.pop(context);
-      }
-    }
   }
 
   @override
@@ -207,13 +174,17 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       FormButtonWidget(
-                        onPressed: saveForm,
+                        onPressed: _saveForm,
                         icon: Icons.check_rounded,
                         backgroundColor: context.colorScheme.primary,
                       ),
                       if (widget.isEdit)
                         FormButtonWidget(
-                          onPressed: () => confirmDelete(formData!),
+                          onPressed: () async {
+                            await confirmDelete(formData!, context);
+
+                            if (context.mounted) Navigator.pop(context);
+                          },
                           icon: Icons.delete_rounded,
                           backgroundColor: context.colorScheme.error,
                         ),

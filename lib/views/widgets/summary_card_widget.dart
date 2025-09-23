@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tcc_app/models/financial_form_data_model.dart';
-import 'package:tcc_app/services/refresh.dart';
-import 'package:tcc_app/views/data/categories_list.dart';
+import 'package:tcc_app/models/financial_data_model.dart';
+import 'package:tcc_app/services/financial_data_service.dart';
+import 'package:tcc_app/utils/calculate_section_data.dart';
 import 'package:tcc_app/views/widgets/piechart_widget.dart';
 import 'package:tcc_app/utils/get_financial_sum_method.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
@@ -12,62 +12,16 @@ class SummaryCardWidget extends StatelessWidget {
 
   const SummaryCardWidget({super.key, required this.durationOptions});
 
-  List<Map<String, Object>> _calculateSectionData(
-    List<FinancialFormData> allItems,
-  ) {
-    final Map<String, double> categoryTotals = {};
-    double total = 0.0;
-
-    for (var item in allItems) {
-      categoryTotals[item.category] =
-          (categoryTotals[item.category] ?? 0.0) + item.value;
-      total += item.value;
-    }
-
-    if (total == 0) return [];
-
-    final filteredCategories = categoriesList
-        .where((cat) => (categoryTotals[cat.key] ?? 0.0) > 0)
-        .toList();
-
-    return List.generate(filteredCategories.length, (index) {
-      final cat = filteredCategories[index];
-      final value = categoryTotals[cat.key]!;
-      final percentage = double.parse(
-        ((value / total) * 100).toStringAsFixed(2),
-      );
-      return {
-        'color': index == filteredCategories.length - 1
-            ? cat.backgroundColor
-            : cat.labelColor,
-        'label': cat.label,
-        'value': percentage,
-      };
-    });
-  }
-
-  double _calculateTotal(List<FinancialFormData> allItems) =>
-      getFinancialSumMethod(allItems);
-
   @override
-  Widget build(
-    BuildContext context,
-  ) => StreamBuilder<List<List<FinancialFormData>>>(
+  Widget build(BuildContext context) => StreamBuilder<FinancialData>(
     stream: FinancialDataService.instance.stream,
     builder: (context, snapshot) {
-      if (snapshot.connectionState != ConnectionState.active) {
+      if (!snapshot.hasData) {
         return const Center(child: CircularProgressIndicator());
       }
 
-      if (snapshot.hasError) {
-        return Center(child: Text('Erro: ${snapshot.error}'));
-      }
-
-      final cardItems = snapshot.data ?? [[], []];
-
-      final allItems = [...cardItems[0], ...cardItems[1]];
-      final totalValue = _calculateTotal(allItems);
-      final sectionData = _calculateSectionData(allItems);
+      final data = snapshot.data!;
+      final allItems = [...data.expenses, ...data.subscriptions];
 
       if (allItems.isEmpty) {
         return Padding(
@@ -82,6 +36,9 @@ class SummaryCardWidget extends StatelessWidget {
           ),
         );
       }
+
+      final totalValue = getFinancialSumMethod(allItems);
+      final sectionData = calculateSectionData(allItems);
 
       return SizedBox(
         width: double.infinity,
@@ -98,6 +55,7 @@ class SummaryCardWidget extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8,
               children: [
                 _SummaryHeader(
                   text: 'Resumo',
