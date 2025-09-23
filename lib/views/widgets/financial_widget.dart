@@ -19,9 +19,12 @@ class FinancialWidget extends StatefulWidget {
 }
 
 class _FinancialWidgetState extends State<FinancialWidget> {
+  final _service = FinancialDataService.instance;
+
   @override
   Widget build(BuildContext context) => StreamBuilder<FinancialData>(
-    stream: FinancialDataService.instance.stream,
+    stream: _service.stream,
+    initialData: _service.cachedData,
     builder: (context, snapshot) {
       if (!snapshot.hasData) {
         return const Center(child: CircularProgressIndicator());

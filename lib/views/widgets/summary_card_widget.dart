@@ -9,12 +9,14 @@ import 'package:tcc_app/utils/format_currency_method.dart';
 
 class SummaryCardWidget extends StatelessWidget {
   final List<Map<String, String>> durationOptions;
+  final _service = FinancialDataService.instance;
 
-  const SummaryCardWidget({super.key, required this.durationOptions});
+  SummaryCardWidget({super.key, required this.durationOptions});
 
   @override
   Widget build(BuildContext context) => StreamBuilder<FinancialData>(
-    stream: FinancialDataService.instance.stream,
+    stream: _service.stream,
+    initialData: _service.cachedData,
     builder: (context, snapshot) {
       if (!snapshot.hasData) {
         return const Center(child: CircularProgressIndicator());

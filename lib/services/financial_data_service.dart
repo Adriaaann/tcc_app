@@ -15,15 +15,22 @@ class FinancialDataService {
 
   Stream<FinancialData> get stream => _controller.stream;
 
+  FinancialData? _cachedData;
+
   Future<void> _loadData() async {
     final db = DbHelper.instance;
     final expenses = await db.getAllFrom('expenses');
     final subscriptions = await db.getAllFrom('subscriptions');
 
-    _controller.add(
-      FinancialData(expenses: expenses, subscriptions: subscriptions),
+    final data = FinancialData(
+      expenses: expenses,
+      subscriptions: subscriptions,
     );
+    _cachedData = data;
+    _controller.add(data);
   }
+
+  FinancialData? get cachedData => _cachedData;
 
   Future<void> refresh() async {
     await _loadData();
