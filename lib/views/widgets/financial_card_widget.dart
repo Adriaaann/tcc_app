@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:tcc_app/models/financial_form_data_model.dart';
 import 'package:tcc_app/services/financial_data_service.dart';
 import 'package:tcc_app/utils/format_currency_method.dart';
@@ -11,23 +12,51 @@ class FinancialCard extends StatelessWidget {
 
   final List<FinancialFormData> items;
 
+  String _formatDate(DateTime date) {
+    final format = DateFormat('d MMM', 'pt_BR');
+    return format.format(date);
+  }
+
   @override
-  Widget build(BuildContext context) => Column(
-    children: items
-        .map(
-          (item) => ListTile(
+  Widget build(BuildContext context) {
+    final sortedItems = [...items]..sort((a, b) => b.date.compareTo(a.date));
+
+    final Map<String, List<FinancialFormData>> groupedItems = {};
+    for (final item in sortedItems) {
+      final dateKey = _formatDate(item.date);
+      groupedItems.putIfAbsent(dateKey, () => []).add(item);
+    }
+
+    final List<Widget> widgets = [];
+
+    groupedItems.forEach((date, itemsOfDay) {
+      widgets.add(
+        Container(
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            date,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ),
+      );
+
+      widgets.addAll(
+        itemsOfDay.map((item) {
+          final category = categoriesList.firstWhere(
+            (c) => c.key == item.category,
+            orElse: () => categoriesList.last,
+          );
+
+          return ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             leading: CircleAvatar(
-              backgroundColor: categoriesList
-                  .firstWhere((c) => c.key == item.category)
-                  .backgroundColor,
-              child: Icon(
-                categoriesList.firstWhere((c) => c.key == item.category).icon,
-                color: categoriesList
-                    .firstWhere((c) => c.key == item.category)
-                    .labelColor,
-                size: 24,
-              ),
+              backgroundColor: category.backgroundColor,
+              child: Icon(category.icon, color: category.labelColor, size: 24),
             ),
             title: _TileBody(item: item),
             onTap: () async {
@@ -41,10 +70,13 @@ class FinancialCard extends StatelessWidget {
 
               await FinancialDataService.instance.refresh();
             },
-          ),
-        )
-        .toList(),
-  );
+          );
+        }),
+      );
+    });
+
+    return Column(children: widgets);
+  }
 }
 
 class _TileBody extends StatelessWidget {
