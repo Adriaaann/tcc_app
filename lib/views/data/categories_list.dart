@@ -1,40 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:tcc_app/models/category_model.dart';
+import 'package:tcc_app/themes/categories_theme.dart';
 
 final List<Category> categoriesList = [
   Category(
     key: 'food',
     label: 'Alimentação',
     icon: Icons.fastfood_rounded,
-    backgroundColor: Colors.orange.shade200,
-    labelColor: Colors.orange.shade800,
+    backgroundColor: CategoriesTheme.food.background,
+    labelColor: CategoriesTheme.food.label,
   ),
   Category(
     key: 'transport',
     label: 'Transporte',
-    icon: Icons.directions_car,
-    backgroundColor: Colors.blue.shade200,
-    labelColor: Colors.blue.shade800,
+    icon: Icons.directions_car_rounded,
+    backgroundColor: CategoriesTheme.transport.background,
+    labelColor: CategoriesTheme.transport.label,
+  ),
+  Category(
+    key: 'housing',
+    label: 'Moradia',
+    icon: Icons.home_rounded,
+    backgroundColor: CategoriesTheme.housing.background,
+    labelColor: CategoriesTheme.housing.label,
   ),
   Category(
     key: 'health',
     label: 'Saúde',
-    icon: Icons.local_hospital,
-    backgroundColor: Colors.red.shade200,
-    labelColor: Colors.red.shade800,
+    icon: Icons.local_hospital_rounded,
+    backgroundColor: CategoriesTheme.health.background,
+    labelColor: CategoriesTheme.health.label,
+  ),
+  Category(
+    key: 'leisure',
+    label: 'Lazer',
+    icon: Icons.movie_rounded,
+    backgroundColor: CategoriesTheme.leisure.background,
+    labelColor: CategoriesTheme.leisure.label,
   ),
   Category(
     key: 'education',
     label: 'Educação',
     icon: Icons.school,
-    backgroundColor: Colors.green.shade200,
-    labelColor: Colors.green.shade800,
+    backgroundColor: CategoriesTheme.education.background,
+    labelColor: CategoriesTheme.education.label,
   ),
   Category(
     key: 'others',
     label: 'Outros',
     icon: Icons.more_horiz_rounded,
-    backgroundColor: Colors.grey.shade400,
-    labelColor: Colors.grey.shade100,
+    backgroundColor: CategoriesTheme.other.background,
+    labelColor: CategoriesTheme.other.label,
   ),
 ];

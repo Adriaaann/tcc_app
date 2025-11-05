@@ -107,7 +107,7 @@ class _SummaryHeader extends StatelessWidget {
           const SizedBox(width: 8),
         ],
       ),
-      IconButton.filledTonal(onPressed: () {}, icon: const Icon(Icons.person)),
+      // IconButton.filledTonal(onPressed: () {}, icon: const Icon(Icons.person)),
     ],
   );
 }
