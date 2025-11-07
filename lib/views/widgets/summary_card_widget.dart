@@ -7,40 +7,48 @@ import 'package:tcc_app/utils/get_financial_sum_method.dart';
 import 'package:tcc_app/utils/theme_extensions.dart';
 import 'package:tcc_app/utils/format_currency_method.dart';
 
-class SummaryCardWidget extends StatelessWidget {
+class SummaryCardWidget extends StatefulWidget {
   final List<Map<String, String>> durationOptions;
-  final _service = FinancialDataService.instance;
 
-  SummaryCardWidget({super.key, required this.durationOptions});
+  const SummaryCardWidget({super.key, required this.durationOptions});
 
   @override
-  Widget build(BuildContext context) => StreamBuilder<FinancialData>(
+  State<SummaryCardWidget> createState() => _SummaryCardWidgetState();
+}
+
+class _SummaryCardWidgetState extends State<SummaryCardWidget> {
+  final _service = FinancialDataService.instance;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (_service.cachedData == null) {
+      _service.refresh();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => StreamBuilder<FinancialData?>(
     stream: _service.stream,
     initialData: _service.cachedData,
     builder: (context, snapshot) {
-      if (!snapshot.hasData) {
+      final data = snapshot.data;
+
+      if (data == null) {
         return const Center(child: CircularProgressIndicator());
       }
 
-      final data = snapshot.data!;
       final allItems = [...data.expenses, ...data.subscriptions];
 
-      if (allItems.isEmpty) {
-        return Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Text(
-            'Nenhum dado encontrado.\nClique no botão abaixo para começar.',
-            textAlign: TextAlign.center,
-            style: context.textTheme.titleMedium?.copyWith(
-              color: context.colorScheme.primary,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        );
-      }
+      final now = DateTime.now();
+      final last30DaysItems = allItems.where((item) {
+        final difference = now.difference(item.date).inDays;
+        return difference >= 0 && difference < 30;
+      }).toList();
 
-      final totalValue = getFinancialSumMethod(allItems);
-      final sectionData = calculateSectionData(allItems);
+      final totalValue = getFinancialSumMethod(last30DaysItems);
+      final sectionData = calculateSectionData(last30DaysItems);
 
       return SizedBox(
         width: double.infinity,
@@ -62,7 +70,7 @@ class SummaryCardWidget extends StatelessWidget {
                 _SummaryHeader(
                   text: 'Resumo',
                   defaultValue: '30_days',
-                  durationOptions: durationOptions,
+                  durationOptions: widget.durationOptions,
                 ),
                 _DisplayValue(
                   text: 'Total de Gastos',
@@ -93,21 +101,23 @@ class _SummaryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    spacing: 8,
+    crossAxisAlignment: CrossAxisAlignment.center,
     children: [
-      Row(
-        children: [
-          Text(
-            text,
-            style: context.textTheme.headlineLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: context.colorScheme.primary,
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
+      Text(
+        text,
+        style: context.textTheme.headlineLarge?.copyWith(
+          fontWeight: FontWeight.w600,
+          color: context.colorScheme.primary,
+        ),
       ),
-      // IconButton.filledTonal(onPressed: () {}, icon: const Icon(Icons.person)),
+      Text(
+        '(30 dias)',
+        style: context.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.w500,
+          color: context.colorScheme.primary,
+        ),
+      ),
     ],
   );
 }

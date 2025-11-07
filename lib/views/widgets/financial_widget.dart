@@ -22,32 +22,44 @@ class _FinancialWidgetState extends State<FinancialWidget> {
   final _service = FinancialDataService.instance;
 
   @override
-  Widget build(BuildContext context) => StreamBuilder<FinancialData>(
+  void initState() {
+    super.initState();
+
+    if (_service.cachedData == null) {
+      _service.refresh();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => StreamBuilder<FinancialData?>(
     stream: _service.stream,
     initialData: _service.cachedData,
     builder: (context, snapshot) {
-      if (!snapshot.hasData) {
+      final data = snapshot.data;
+
+      if (data == null) {
         return const Center(child: CircularProgressIndicator());
       }
 
-      final data = snapshot.data!;
       final hasData = data.expenses.isNotEmpty || data.subscriptions.isNotEmpty;
 
       if (!hasData) {
         return Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Text(
-            'Nenhum dado encontrado.\nClique no botão abaixo para criar.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.w700,
+          padding: const EdgeInsets.symmetric(vertical: 64),
+          child: Center(
+            child: Text(
+              'Nenhum dado encontrado.\nClique no botão abaixo para criar.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         );
       }
 
-      final tabsItems = [data.expenses, data.subscriptions];
+      final tabItems = [data.expenses, data.subscriptions];
 
       return Padding(
         padding: const EdgeInsets.only(top: 8.0),
@@ -63,7 +75,7 @@ class _FinancialWidgetState extends State<FinancialWidget> {
                 animation: widget.tabController,
                 builder: (context, _) {
                   final index = widget.tabController.index;
-                  return FinancialCard(items: tabsItems[index]);
+                  return FinancialCard(items: tabItems[index]);
                 },
               ),
             ),
