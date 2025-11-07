@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:tcc_app/models/financial_data_model.dart';
+import 'package:tcc_app/models/financial_form_data_model.dart';
 import 'package:tcc_app/services/db_get.dart';
 import 'package:tcc_app/services/db_helper.dart';
 
@@ -29,13 +30,20 @@ class FinancialDataService {
       final expenses = await db.getAllFrom('expenses');
       final subscriptions = await db.getAllFrom('subscriptions');
 
+      final markedExpenses = expenses
+          .map((e) => e.copyWith(sourceTable: 'expenses'))
+          .toList();
+
+      final markedSubscriptions = subscriptions
+          .map((e) => e.copyWith(sourceTable: 'subscriptions'))
+          .toList();
+
       final data = FinancialData(
-        expenses: expenses,
-        subscriptions: subscriptions,
+        expenses: markedExpenses,
+        subscriptions: markedSubscriptions,
       );
 
       _cachedData = data;
-
       _controller.add(data);
     } catch (e) {
       _controller.addError(e);
@@ -52,6 +60,19 @@ class FinancialDataService {
     if (!_isInitialized) {
       await _initialize();
     }
+  }
+
+  List<FinancialFormData> get allItems {
+    if (_cachedData == null) return [];
+    return [..._cachedData!.expenses, ..._cachedData!.subscriptions];
+  }
+
+  List<FinancialFormData> getLastDaysData(int days) {
+    if (_cachedData == null) return [];
+    final now = DateTime.now();
+    final cutoff = now.subtract(Duration(days: days - 1));
+
+    return allItems.where((e) => e.date.isAfter(cutoff)).toList();
   }
 
   void dispose() {

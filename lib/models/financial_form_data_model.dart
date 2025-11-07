@@ -4,6 +4,7 @@ class FinancialFormData {
   final double value;
   final String category;
   final String? title;
+  final String sourceTable;
 
   FinancialFormData({
     this.id,
@@ -11,6 +12,7 @@ class FinancialFormData {
     required this.value,
     required this.category,
     this.title,
+    this.sourceTable = 'expenses',
   });
 
   FinancialFormData copyWith({
@@ -19,12 +21,14 @@ class FinancialFormData {
     double? value,
     String? category,
     String? title,
+    String? sourceTable,
   }) => FinancialFormData(
     id: id ?? this.id,
     date: date ?? this.date,
     value: value ?? this.value,
     category: category ?? this.category,
     title: title ?? this.title,
+    sourceTable: sourceTable ?? this.sourceTable,
   );
 
   Map<String, dynamic> toMap() => {
@@ -35,12 +39,15 @@ class FinancialFormData {
     'title': title,
   };
 
-  factory FinancialFormData.fromMap(Map<String, dynamic> map) =>
+  factory FinancialFormData.fromMap(Map<String, dynamic> map, String table) =>
       FinancialFormData(
         id: map['id'] as int?,
-        date: DateTime.parse(map['date'] as String),
-        value: map['value'] as double,
+        date: DateTime.parse(map['date']),
+        value: map['value'] is int
+            ? (map['value'] as int).toDouble()
+            : map['value'],
         category: map['category'] as String,
         title: map['title'] as String?,
+        sourceTable: table,
       );
 }
